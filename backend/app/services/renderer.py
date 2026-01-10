@@ -2,12 +2,6 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 
-FONT_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
-print("FILES IN FONT DIR:")
-for f in FONT_DIR.iterdir():
-    print(" -", f.name)
-
-
 def render_handwritten_text(
     text: str,
     output_path: Path,
@@ -17,8 +11,7 @@ def render_handwritten_text(
     font_size: int = 32,
     line_spacing: int = 10,
 ):
-    print("FONT PATH RECEIVED:", font_path)
-    print("FONT EXISTS:", font_path.exists())
+   
 
     font = ImageFont.truetype(str(font_path), font_size)
 
