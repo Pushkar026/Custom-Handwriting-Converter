@@ -65,3 +65,15 @@ button:disabled {
   text-decoration: none;
   font-weight: bold;
 }
+
+.font-selector {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+  background: white;
+  cursor: pointer;
+}
+

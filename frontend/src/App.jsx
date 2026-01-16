@@ -3,6 +3,7 @@ import "./App.css";
 
 function App() {
   const [text, setText] = useState("");
+  const [font, setFont] = useState("neat");
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -16,50 +17,33 @@ function App() {
       setLoading(true);
       setImageUrl(null);
 
-      // 1️⃣ Upload text (JSON, not FormData)
       const uploadRes = await fetch(
         "http://127.0.0.1:8000/api/upload/text",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
         }
       );
 
-      if (!uploadRes.ok) {
-        throw new Error("Text upload failed");
-      }
-
       const uploadData = await uploadRes.json();
-
-      // ✅ CORRECT FIELD NAME
       const fileId = uploadData.file_id;
 
-      // 2️⃣ Convert uploaded text
       const convertRes = await fetch(
-  "http://127.0.0.1:8000/api/convert",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      file_id: fileId,
-      file_type: "text",
-    }),
-  }
-);
-
-
-      if (!convertRes.ok) {
-        throw new Error("Conversion failed");
-      }
+        "http://127.0.0.1:8000/api/convert",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file_id: fileId,
+            file_type: "text",
+            font_key: font,
+          }),
+        }
+      );
 
       const convertData = await convertRes.json();
 
-      // 3️⃣ Show output image
       setImageUrl(
         `http://127.0.0.1:8000/outputs/${convertData.output_id}.png`
       );
@@ -82,6 +66,16 @@ function App() {
         rows={6}
       />
 
+      <select value={font} onChange={(e) => setFont(e.target.value)}>
+  <option value="handwriting">Handwriting</option>
+  <option value="calibri">Calibri</option>
+  <option value="arial">Arial</option>
+  <option value="palscript">Pal Script</option>
+  <option value="chiller">Chiller</option>
+  <option value="rage">Rage</option>
+</select>
+
+
       <button onClick={uploadTextAndConvert} disabled={loading}>
         {loading ? "Converting..." : "Convert to Handwriting"}
       </button>
@@ -100,4 +94,5 @@ function App() {
 }
 
 export default App;
+
 

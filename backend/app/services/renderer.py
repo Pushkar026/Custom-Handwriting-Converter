@@ -1,33 +1,62 @@
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
+import textwrap
 
 
 def render_handwritten_text(
     text: str,
     output_path: Path,
     font_path: Path,
-    image_width: int = 800,
-    margin: int = 50,
-    font_size: int = 32,
-    line_spacing: int = 10,
+    background_path: Path,
+    font_size: int = 34,
+    left_margin: int = 140,   # after red margin
+    top_margin: int = 120,
+    line_gap: int = 72,       # distance between ruled lines (match image)
 ):
-   
+    # ---------- SAFETY ----------
+    if not font_path.exists():
+        raise FileNotFoundError(f"Font not found: {font_path}")
+
+    if not background_path.exists():
+        raise FileNotFoundError(f"Background not found: {background_path}")
 
     font = ImageFont.truetype(str(font_path), font_size)
 
-    temp_img = Image.new("RGB", (image_width, 1000), "white")
-    temp_draw = ImageDraw.Draw(temp_img)
-
-    lines = text.split("\n")
-    line_height = font_size + line_spacing
-    image_height = margin * 2 + len(lines) * line_height
-
-    img = Image.new("RGB", (image_width, image_height), "white")
+    # ---------- LOAD BACKGROUND ----------
+    bg = Image.open(background_path).convert("RGB")
+    img = bg.copy()
     draw = ImageDraw.Draw(img)
 
-    y = margin
-    for line in lines:
-        draw.text((margin, y), line, fill="black", font=font)
-        y += line_height
+    # ---------- WORD WRAPPING ----------
+    max_width = img.width - left_margin - 80
+    wrapped_lines = []
+
+    for line in text.split("\n"):
+        words = line.split(" ")
+        current = ""
+
+        for word in words:
+            test = current + word + " "
+            if font.getlength(test) <= max_width:
+                current = test
+            else:
+                wrapped_lines.append(current.strip())
+                current = word + " "
+        wrapped_lines.append(current.strip())
+
+    # ---------- DRAW TEXT ----------
+    y = top_margin
+
+    for line in wrapped_lines:
+        draw.text(
+            (left_margin, y),
+            line,
+            fill=(30, 30, 30),  # clean ink
+            font=font,
+        )
+        y += line_gap
+
+        if y > img.height - 100:
+            break  # prevent overflow (later → pagination)
 
     img.save(output_path)
