@@ -10,4 +10,4 @@ A web application that converts digital text into personalized handwriting.
 ## Tech Stack
 - FastAPI
 - Python
-- React (if frontend added)
+- React
